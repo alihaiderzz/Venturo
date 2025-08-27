@@ -4,13 +4,13 @@ import { supabase } from '@/lib/supabaseClient'
 export async function GET() {
   try {
     // Check if community_feedback table exists
-    const { data: feedbackTable, error: feedbackError } = await supabase
+    const { data: feedbackTable, error: feedbackError } = await supabase()
       .from('community_feedback')
       .select('id')
       .limit(1)
 
     // Check if idea_likes table exists
-    const { data: likesTable, error: likesError } = await supabase
+    const { data: likesTable, error: likesError } = await supabase()
       .from('idea_likes')
       .select('id')
       .limit(1)

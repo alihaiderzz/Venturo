@@ -4,13 +4,13 @@ import { supabase } from '@/lib/supabaseClient'
 export async function GET() {
   try {
     // Check if new columns exist in user_profiles
-    const { data: userProfile, error: userError } = await supabase
+    const { data: userProfile, error: userError } = await supabase()
       .from('user_profiles')
       .select('subscription_tier, subscription_expires_at')
       .limit(1)
 
     // Check if new columns exist in startup_ideas
-    const { data: startupIdea, error: ideaError } = await supabase
+    const { data: startupIdea, error: ideaError } = await supabase()
       .from('startup_ideas')
       .select('images, company_logo, company_logo_public_id')
       .limit(1)

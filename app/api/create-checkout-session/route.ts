@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const { plan, isYearly, boostQuantity, ideaId } = body;
 
     // Get user profile
-    const { data: userProfile } = await supabase
+    const { data: userProfile } = await supabase()
       .from('user_profiles')
       .select('email, full_name')
       .eq('clerk_user_id', userId)

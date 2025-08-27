@@ -70,7 +70,7 @@ async function handleCheckoutSessionCompleted(session: any) {
     const expiresAt = new Date();
     expiresAt.setFullYear(expiresAt.getFullYear() + (isYearly === 'true' ? 1 : 0));
 
-    await supabase
+    await supabase()
       .from('user_profiles')
       .update({
         subscription_tier: subscriptionTier,
@@ -83,7 +83,7 @@ async function handleCheckoutSessionCompleted(session: any) {
     // Handle boost purchase
     if (ideaId) {
       // Apply boost to specific idea
-      await supabase
+      await supabase()
         .from('startup_ideas')
         .update({
           is_boosted: true,
@@ -105,7 +105,7 @@ async function handleSubscriptionUpdated(subscription: any) {
     const subscriptionTier = plan === 'Venturo Pro' ? 'pro' : 'investor';
     const expiresAt = new Date(subscription.current_period_end * 1000);
 
-    await supabase
+    await supabase()
       .from('user_profiles')
       .update({
         subscription_tier: subscriptionTier,
@@ -118,7 +118,7 @@ async function handleSubscriptionUpdated(subscription: any) {
 async function handleSubscriptionDeleted(subscription: any) {
   const { userId } = subscription.metadata;
 
-  await supabase
+  await supabase()
     .from('user_profiles')
     .update({
       subscription_tier: 'free',

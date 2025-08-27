@@ -1,9 +1,21 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Lazy initialization to avoid build-time errors
+let supabaseClient: ReturnType<typeof createClient> | null = null
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = () => {
+  if (!supabaseClient) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Supabase environment variables are not configured')
+    }
+    
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+  }
+  return supabaseClient
+}
 
 // TypeScript types for our database schema
 export interface UserProfile {
@@ -95,7 +107,7 @@ export interface EventAttendee {
 export const db = {
   // User Profile operations
   async getUserProfile(clerkUserId: string): Promise<UserProfile | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('user_profiles')
       .select('*')
       .eq('clerk_user_id', clerkUserId)
@@ -111,7 +123,7 @@ export const db = {
 
   async createUserProfile(profile: Partial<UserProfile>): Promise<UserProfile | null> {
     console.log('Creating user profile with data:', profile)
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('user_profiles')
       .insert(profile)
       .select()
@@ -128,7 +140,7 @@ export const db = {
 
   async updateUserProfile(clerkUserId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
     console.log('Updating user profile for:', clerkUserId, 'with data:', updates)
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('user_profiles')
       .update(updates)
       .eq('clerk_user_id', clerkUserId)
@@ -151,7 +163,7 @@ export const db = {
     status?: string
     limit?: number
   }): Promise<Event[]> {
-    let query = supabase
+    let query = supabase()
       .from('events')
       .select('*')
       .order('date', { ascending: true })
@@ -183,7 +195,7 @@ export const db = {
   },
 
   async createEvent(event: Partial<Event>): Promise<Event | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('events')
       .insert(event)
       .select()
@@ -198,7 +210,7 @@ export const db = {
   },
 
   async registerForEvent(eventId: string, userId: string): Promise<boolean> {
-    const { error } = await supabase
+    const { error } = await supabase()
       .from('event_attendees')
       .insert({
         event_id: eventId,
@@ -211,7 +223,7 @@ export const db = {
     }
     
     // Update attendee count
-    await supabase.rpc('increment_event_attendees', { event_id: eventId })
+    await supabase().rpc('increment_event_attendees', { event_id: eventId })
     
     return true
   },
@@ -223,7 +235,7 @@ export const db = {
     status?: string
     limit?: number
   }): Promise<StartupIdea[]> {
-    let query = supabase
+    let query = supabase()
       .from('startup_ideas')
       .select('*')
       .order('created_at', { ascending: false })
@@ -255,7 +267,7 @@ export const db = {
   },
 
   async createStartupIdea(idea: Partial<StartupIdea>): Promise<StartupIdea | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('startup_ideas')
       .insert(idea)
       .select()
@@ -270,12 +282,12 @@ export const db = {
   },
 
   async incrementIdeaViews(ideaId: string): Promise<void> {
-    await supabase.rpc('increment_idea_views', { idea_id: ideaId })
+    await supabase().rpc('increment_idea_views', { idea_id: ideaId })
   },
 
   // Message operations
   async getMessages(userId: string): Promise<Message[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('messages')
       .select('*')
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
@@ -290,7 +302,7 @@ export const db = {
   },
 
   async sendMessage(message: Partial<Message>): Promise<Message | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('messages')
       .insert(message)
       .select()
@@ -306,14 +318,14 @@ export const db = {
 
   // Real-time subscriptions
   subscribeToEvents(callback: (payload: any) => void) {
-    return supabase
+    return supabase()
       .channel('events')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, callback)
       .subscribe()
   },
 
   subscribeToMessages(userId: string, callback: (payload: any) => void) {
-    return supabase
+    return supabase()
       .channel(`messages:${userId}`)
       .on('postgres_changes', { 
         event: '*', 
