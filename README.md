@@ -22,3 +22,4 @@ Networking/showcase only. No AFSL. No payments or investments processed. Deals o
 # Updated for deployment
 # Environment variables added - redeploy
 # Environment variables check
+# Testing deployment with Clerk environment variables
