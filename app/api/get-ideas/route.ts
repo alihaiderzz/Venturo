@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from("startup_ideas")
       .select(`
         *,

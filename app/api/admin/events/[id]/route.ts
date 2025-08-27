@@ -12,7 +12,7 @@ const ADMIN_EMAILS = [
 
 async function isAdmin(userId: string) {
   try {
-    const { data: userProfile } = await supabase
+    const { data: userProfile } = await supabase()
       .from('user_profiles')
       .select('email')
       .eq('clerk_user_id', userId)
@@ -75,7 +75,7 @@ export async function PUT(
     }
 
     // Update event
-    const { data: updatedEvent, error } = await supabase
+    const { data: updatedEvent, error } = await supabase()
       .from('events')
       .update({
         title,
@@ -141,7 +141,7 @@ export async function DELETE(
     const { id: eventId } = await params
 
     // First try direct delete
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabase()
       .from('events')
       .delete()
       .eq('id', eventId)
@@ -154,7 +154,7 @@ export async function DELETE(
         console.log("RLS error detected, trying RPC fallback...")
         
         // Try to call an RPC function for admin delete
-        const { error: rpcError } = await supabase
+        const { error: rpcError } = await supabase()
           .rpc('delete_admin_event', { event_id: eventId })
         
         if (rpcError) {

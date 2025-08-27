@@ -32,7 +32,7 @@ export async function POST(
     }
 
     // Check if already liked
-    const { data: existingLike } = await supabase
+    const { data: existingLike } = await supabase()
       .from('idea_likes')
       .select('id')
       .eq('idea_id', ideaId)
@@ -41,7 +41,7 @@ export async function POST(
 
     if (existingLike) {
       // Unlike
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await supabase()
         .from('idea_likes')
         .delete()
         .eq('idea_id', ideaId)
@@ -56,7 +56,7 @@ export async function POST(
       }
 
       // Update idea stats
-      await supabase.rpc('increment_idea_views', { 
+      await supabase().rpc('increment_idea_views', { 
         idea_id: ideaId, 
         increment_amount: -1 
       })
@@ -64,7 +64,7 @@ export async function POST(
       return NextResponse.json({ liked: false })
     } else {
       // Like
-      const { error: insertError } = await supabase
+      const { error: insertError } = await supabase()
         .from('idea_likes')
         .insert({
           idea_id: ideaId,
@@ -80,7 +80,7 @@ export async function POST(
       }
 
       // Update idea stats
-      await supabase.rpc('increment_idea_views', { 
+      await supabase().rpc('increment_idea_views', { 
         idea_id: ideaId, 
         increment_amount: 1 
       })
@@ -112,7 +112,7 @@ export async function GET(
     const { id: ideaId } = await params
 
     // Get user profile
-    const { data: userProfile } = await supabase
+    const { data: userProfile } = await supabase()
       .from('user_profiles')
       .select('id')
       .eq('clerk_user_id', userId)
@@ -123,7 +123,7 @@ export async function GET(
     }
 
     // Check if liked
-    const { data: like } = await supabase
+    const { data: like } = await supabase()
       .from('idea_likes')
       .select('id')
       .eq('idea_id', ideaId)
