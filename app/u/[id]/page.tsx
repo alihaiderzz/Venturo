@@ -123,7 +123,7 @@ export default function UserProfilePage() {
   }
 
   if (error || !profile) {
-    return (
+  return (
       <div className="min-h-screen bg-[#F6F7F9] flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">User Not Found</h1>

@@ -18,7 +18,7 @@ export async function GET(
     const { id: ideaId } = await params
 
     // Get user's profile ID
-    const { data: userProfile, error: profileError } = await supabase
+    const { data: userProfile, error: profileError } = await supabase()
       .from('user_profiles')
       .select('id')
       .eq('clerk_user_id', userId)
@@ -32,7 +32,7 @@ export async function GET(
     }
 
     // Get the idea
-    const { data: idea, error } = await supabase
+    const { data: idea, error } = await supabase()
       .from('startup_ideas')
       .select('*')
       .eq('id', ideaId)
@@ -73,7 +73,7 @@ export async function PUT(
     const body = await request.json()
 
     // Get user's profile ID
-    const { data: userProfile, error: profileError } = await supabase
+    const { data: userProfile, error: profileError } = await supabase()
       .from('user_profiles')
       .select('id')
       .eq('clerk_user_id', userId)
@@ -87,7 +87,7 @@ export async function PUT(
     }
 
     // Verify user owns this idea
-    const { data: existingIdea, error: checkError } = await supabase
+    const { data: existingIdea, error: checkError } = await supabase()
       .from('startup_ideas')
       .select('owner_id')
       .eq('id', ideaId)
@@ -108,7 +108,7 @@ export async function PUT(
     }
 
     // Update the idea
-    const { data: updatedIdea, error } = await supabase
+    const { data: updatedIdea, error } = await supabase()
       .from('startup_ideas')
       .update({
         title: body.title,
@@ -160,7 +160,7 @@ export async function DELETE(
     const { id: ideaId } = await params
 
     // Get user's profile ID
-    const { data: userProfile, error: profileError } = await supabase
+    const { data: userProfile, error: profileError } = await supabase()
       .from('user_profiles')
       .select('id')
       .eq('clerk_user_id', userId)
@@ -174,7 +174,7 @@ export async function DELETE(
     }
 
     // Verify user owns this idea
-    const { data: existingIdea, error: checkError } = await supabase
+    const { data: existingIdea, error: checkError } = await supabase()
       .from('startup_ideas')
       .select('owner_id')
       .eq('id', ideaId)
@@ -194,18 +194,19 @@ export async function DELETE(
       )
     }
 
-    // Try hard delete first
-    let { error } = await supabase
+    // Try direct delete first
+    let { error } = await supabase()
       .from('startup_ideas')
       .delete()
       .eq('id', ideaId)
+      .eq('owner_id', userProfile.id)
 
     console.log(`Deleting idea ${ideaId}, error:`, error)
 
     // If RLS error, try using RPC function
-    if (error && error.code === '42501') {
+    if (error && (error.code === '42501' || error.code === 'PGRST116')) {
       console.log('RLS error, trying RPC function...')
-      const { data: rpcResult, error: rpcError } = await supabase
+      const { data: rpcResult, error: rpcError } = await supabase()
         .rpc('delete_user_idea', {
           idea_id: ideaId,
           user_clerk_id: userId

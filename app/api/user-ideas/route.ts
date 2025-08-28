@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's profile ID
-    const { data: userProfile, error: profileError } = await supabase
+    const { data: userProfile, error: profileError } = await supabase()
       .from('user_profiles')
       .select('id')
       .eq('clerk_user_id', userId)
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get active ideas owned by the current user
-    const { data: ideas, error } = await supabase
+    const { data: ideas, error } = await supabase()
       .from("startup_ideas")
       .select(`
         *,

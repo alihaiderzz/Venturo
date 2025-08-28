@@ -185,7 +185,8 @@ export default function CreateListingPage() {
         const result = await res.json()
         console.log("Idea saved successfully!", result)
         alert("Your startup idea has been published successfully!")
-        window.location.href = "/browse"
+        // Redirect to the individual idea page
+        window.location.href = `/idea/${result.idea.id}`
       } else {
         const errorData = await res.json()
         console.error("Failed to save idea:", errorData.error)

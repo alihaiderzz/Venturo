@@ -161,6 +161,8 @@ export function UserProfileModal({ children }: { children: React.ReactNode }) {
     }
   }
 
+
+
   const handleDeleteIdea = async (ideaId: string) => {
     const idea = userIdeas.find(i => i.id === ideaId)
     const ideaTitle = idea?.title || 'this idea'
@@ -188,7 +190,7 @@ export function UserProfileModal({ children }: { children: React.ReactNode }) {
         console.error('Delete error:', error)
         toast({
           title: "Failed to delete idea",
-          description: error.error || "An error occurred while deleting the idea. Please try again.",
+          description: error.error || error.message || "An error occurred while deleting the idea. Please try again.",
           variant: "destructive",
         })
       }

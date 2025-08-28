@@ -63,30 +63,14 @@ export default function BrowsePage() {
         if (res.ok) {
           const fetchedIdeas = data.data || []
           setIdeas(fetchedIdeas)
-          if (fetchedIdeas.length > 0) {
-            toast({
-              title: "Ideas loaded successfully",
-              description: `Found ${fetchedIdeas.length} startup ideas`,
-            })
-          }
         } else {
           const errorMsg = data.error || "Failed to fetch ideas"
           setError(errorMsg)
-          toast({
-            title: "Error loading ideas",
-            description: errorMsg,
-            variant: "destructive",
-          })
           console.error("Failed to fetch ideas:", data.error)
         }
       } catch (error) {
         const errorMsg = "Network error. Please try again."
         setError(errorMsg)
-        toast({
-          title: "Connection error",
-          description: errorMsg,
-          variant: "destructive",
-        })
         console.error("Error fetching ideas:", error)
       } finally {
         setLoading(false)
@@ -97,7 +81,7 @@ export default function BrowsePage() {
   }, [])
 
   const filteredIdeas = useMemo(() => {
-    let filtered = ideas
+    let filtered = ideas || []
 
     // Enhanced search filter - search across multiple fields
     if (searchTerm) {
@@ -109,14 +93,39 @@ export default function BrowsePage() {
         idea.category?.toLowerCase().includes(searchLower) ||
         idea.owner?.full_name?.toLowerCase().includes(searchLower)
       )
-    } else {
-      // Show all ideas when no search term
-      filtered = ideas
     }
 
     // Category filter
     if (selectedCategory !== "all") {
       filtered = filtered.filter(idea => idea.category === selectedCategory)
+    }
+
+    // Stage filter
+    if (selectedStage !== "all") {
+      filtered = filtered.filter(idea => idea.stage === selectedStage)
+    }
+
+    // Location filter
+    if (selectedState !== "all") {
+      filtered = filtered.filter(idea => idea.location === selectedState)
+    }
+
+    // Needs filter
+    if (selectedNeeds !== "all") {
+      filtered = filtered.filter(idea => {
+        switch (selectedNeeds) {
+          case "Capital":
+            return idea.needs_capital
+          case "Co-founder":
+            return idea.needs_cofounder
+          case "Skills":
+            return idea.needs_skills
+          case "Mentorship":
+            return idea.needs_mentorship
+          default:
+            return true
+        }
+      })
     }
 
     // Sort with priority for boosted ideas
@@ -172,7 +181,7 @@ export default function BrowsePage() {
     }
 
     return filtered
-  }, [searchTerm, selectedCategory, selectedStage, selectedState, selectedNeeds, sortBy])
+  }, [searchTerm, selectedCategory, selectedStage, selectedState, selectedNeeds, sortBy, ideas])
 
   const clearFilters = () => {
     setSearchTerm("")
@@ -180,10 +189,7 @@ export default function BrowsePage() {
     setSelectedStage("all")
     setSelectedState("all")
     setSelectedNeeds("all")
-    toast({
-      title: "Filters cleared",
-      description: "All search and filter options have been reset",
-    })
+    console.log("Filters cleared")
   }
 
   const hasActiveFilters = searchTerm || selectedCategory !== "all" || selectedStage !== "all" || selectedState !== "all" || selectedNeeds !== "all"
@@ -342,9 +348,10 @@ export default function BrowsePage() {
         {/* Results Summary */}
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            {searchTerm ? (
+            {searchTerm || hasActiveFilters ? (
               <span>
-                Found {filteredIdeas.length} result{filteredIdeas.length !== 1 ? 's' : ''} for "{searchTerm}"
+                Found {filteredIdeas.length} result{filteredIdeas.length !== 1 ? 's' : ''} 
+                {searchTerm && ` for "${searchTerm}"`}
                 {filteredIdeas.length !== ideas.length && (
                   <span className="ml-1">(of {ideas.length} total)</span>
                 )}
@@ -484,64 +491,12 @@ const ActionRow = ({ ideaId, created_by, ideaTitle, ideaDescription }: {
   ideaTitle: string;
   ideaDescription?: string;
 }) => {
-  const [isLiked, setIsLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-
-  // Check if user has liked this idea on component mount
-  useEffect(() => {
-    const checkLikeStatus = async () => {
-      try {
-        const res = await fetch(`/api/ideas/${ideaId}/like`)
-        if (res.ok) {
-          const data = await res.json()
-          setIsLiked(data.liked)
-        }
-      } catch (error) {
-        console.error("Error checking like status:", error)
-      }
-    }
-
-    checkLikeStatus()
-  }, [ideaId])
-
-  const handleLike = async () => {
-    if (isLoading) return
-    
-    setIsLoading(true)
-    try {
-      const res = await fetch(`/api/ideas/${ideaId}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      
-      if (res.ok) {
-        const data = await res.json()
-        setIsLiked(data.liked)
-        setLikeCount(prev => data.liked ? prev + 1 : prev - 1)
-      }
-    } catch (error) {
-      console.error("Error toggling like:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
     <div className="flex items-center gap-2">
       <Button asChild className="h-11 min-h-11 flex-1">
         <Link href={`/idea/${ideaId}`} aria-label={`View idea ${ideaId}`}>
           View
         </Link>
-      </Button>
-      <Button 
-        variant={isLiked ? "default" : "outline"} 
-        className={`h-11 min-h-11 ${isLiked ? 'bg-[#21C087] hover:bg-[#1a9f6f]' : ''}`}
-        onClick={handleLike}
-        disabled={isLoading}
-        aria-label={isLiked ? "Unlike idea" : "Like idea"}
-      >
-        <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
       </Button>
       <ShareButton 
         ideaId={ideaId}

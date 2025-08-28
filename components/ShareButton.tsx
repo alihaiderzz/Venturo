@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
@@ -16,9 +16,22 @@ export function ShareButton({ ideaId, ideaTitle, ideaDescription }: ShareButtonP
   const { toast } = useToast()
   const [copied, setCopied] = useState(false)
 
-  const shareUrl = `${window.location.origin}/idea/${ideaId}`
-  const shareText = `Check out this startup idea: ${ideaTitle}`
-  const fullShareText = `${shareText} - ${ideaDescription || ''}`.substring(0, 200) + (ideaDescription && ideaDescription.length > 200 ? '...' : '')
+  // Use useEffect to get window.location.origin after component mounts
+  const [shareUrl, setShareUrl] = useState('')
+  const [shareText, setShareText] = useState('')
+  const [fullShareText, setFullShareText] = useState('')
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = `${window.location.origin}/idea/${ideaId}`
+      const text = `Check out this startup idea: ${ideaTitle}`
+      const fullText = `${text} - ${ideaDescription || ''}`.substring(0, 200) + (ideaDescription && ideaDescription.length > 200 ? '...' : '')
+      
+      setShareUrl(url)
+      setShareText(text)
+      setFullShareText(fullText)
+    }
+  }, [ideaId, ideaTitle, ideaDescription])
 
   const handleCopyLink = async () => {
     try {
@@ -69,7 +82,7 @@ export function ShareButton({ ideaId, ideaTitle, ideaDescription }: ShareButtonP
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-11 min-h-11" aria-label="Share idea">
+        <Button variant="outline" size="sm" className="h-11 min-h-11 bg-white hover:bg-gray-50 border-gray-200 shadow-sm" aria-label="Share idea">
           <Share2 className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

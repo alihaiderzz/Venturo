@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get or create user profile
-    let { data: userProfile, error: profileError } = await supabase
+    let { data: userProfile, error: profileError } = await supabase()
       .from('user_profiles')
       .select('*')
       .eq('clerk_user_id', userId)
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     if (profileError || !userProfile) {
       // Create user profile if it doesn't exist
-      const { data: newProfile, error: createError } = await supabase
+      const { data: newProfile, error: createError } = await supabase()
         .from('user_profiles')
         .insert({
           clerk_user_id: userId,
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check user's idea limit based on subscription tier
-    const { data: userIdeas, error: ideasError } = await supabase
+    const { data: userIdeas, error: ideasError } = await supabase()
       .from('startup_ideas')
       .select('id')
       .eq('owner_id', userProfile.id)
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create startup idea
-    const { data: idea, error: createError } = await supabase
+    const { data: idea, error: createError } = await supabase()
       .from('startup_ideas')
       .insert(ideaData)
       .select()
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const { data: ideas, error } = await supabase
+    const { data: ideas, error } = await supabase()
       .from('startup_ideas')
       .select('*')
       .eq('status', 'active')
