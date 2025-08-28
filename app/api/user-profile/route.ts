@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     if (!userProfile) {
       console.error("Failed to save user profile - userProfile is null")
       return NextResponse.json(
-        { error: "Failed to save user profile" },
+        { error: "Failed to save user profile. Please check your database connection." },
         { status: 500 }
       )
     }

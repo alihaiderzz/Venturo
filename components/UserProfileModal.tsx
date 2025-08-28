@@ -226,15 +226,29 @@ export function UserProfileModal({ children }: { children: React.ReactNode }) {
       })
 
       if (response.ok) {
+        const result = await response.json()
         await fetchProfile()
         setIsEditing(false)
-        alert('Profile updated successfully!')
+        toast({
+          title: "Success!",
+          description: "Profile updated successfully!",
+        })
       } else {
-        alert('Failed to update profile')
+        const errorData = await response.json()
+        console.error('Profile update failed:', errorData)
+        toast({
+          title: "Failed to update profile",
+          description: errorData.error || "Please try again or contact support.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
       console.error('Error updating profile:', error)
-      alert('Error updating profile')
+      toast({
+        title: "Error updating profile",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      })
     } finally {
       setSaving(false)
     }
