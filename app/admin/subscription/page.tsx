@@ -10,8 +10,22 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Crown, User, DollarSign, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs"
 
 export default function AdminSubscriptionPage() {
+  return (
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      <SignedIn>
+        <AdminSubscriptionContent />
+      </SignedIn>
+    </>
+  )
+}
+
+function AdminSubscriptionContent() {
   const { toast } = useToast()
   const [userEmail, setUserEmail] = useState("")
   const [subscriptionTier, setSubscriptionTier] = useState("")

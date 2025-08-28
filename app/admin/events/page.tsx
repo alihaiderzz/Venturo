@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs"
 
 interface Event {
   id: string
@@ -52,6 +53,19 @@ interface Event {
 const categories = ["Networking", "Workshop", "Pitch Competition", "Conference", "Meetup", "Hackathon", "Other"]
 
 export default function AdminEventsPage() {
+  return (
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      <SignedIn>
+        <AdminEventsContent />
+      </SignedIn>
+    </>
+  )
+}
+
+function AdminEventsContent() {
   const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
