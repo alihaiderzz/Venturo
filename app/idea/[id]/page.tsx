@@ -7,7 +7,7 @@ import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShareButtonWrapper } from "@/components/ShareButtonWrapper"
+import { ShareButton } from "@/components/ShareButton"
 
 export default async function IdeaDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -335,7 +335,7 @@ export default async function IdeaDetail({ params }: { params: Promise<{ id: str
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-end">
-                    <ShareButtonWrapper 
+                    <ShareButton 
                       ideaId={idea.id} 
                       ideaTitle={idea.title} 
                       ideaDescription={idea.one_liner}
