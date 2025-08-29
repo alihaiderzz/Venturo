@@ -12,7 +12,7 @@ const ADMIN_EMAILS = [
 
 async function isAdmin(userId: string) {
   try {
-    const { data: userProfile } = await supabase
+    const { data: userProfile } = await supabase()
       .from('user_profiles')
       .select('email')
       .eq('clerk_user_id', userId)
@@ -45,7 +45,7 @@ export async function GET() {
     }
 
     // Get all events (including inactive ones for admin)
-    const { data: events, error } = await supabase
+    const { data: events, error } = await supabase()
       .from("events")
       .select("*")
       .order("created_at", { ascending: false })
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create event
-    const { data: event, error } = await supabase
+    const { data: event, error } = await supabase()
       .from('events')
       .insert({
         title,

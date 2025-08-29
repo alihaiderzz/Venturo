@@ -12,7 +12,7 @@ const ADMIN_EMAILS = [
 
 async function isAdmin(userId: string) {
   try {
-    const { data: userProfile } = await supabase
+    const { data: userProfile } = await supabase()
       .from('user_profiles')
       .select('email')
       .eq('clerk_user_id', userId)
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update user's subscription
-    const { data: updatedProfile, error } = await supabase
+    const { data: updatedProfile, error } = await supabase()
       .from('user_profiles')
       .update({
         subscription_tier: subscriptionTier,
@@ -115,7 +115,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get user's subscription info
-    const { data: userProfile, error } = await supabase
+    const { data: userProfile, error } = await supabase()
       .from('user_profiles')
       .select('email, subscription_tier, subscription_expires_at')
       .eq('email', userEmail)

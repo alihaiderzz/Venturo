@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/supabaseClient'
+import { db, supabase } from '@/lib/supabaseClient'
 import { auth } from '@clerk/nextjs/server'
 
 // AI Content Moderation and Enhancement
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Log moderation result
-    await db.supabase.from('ai_moderation_logs').insert({
+    await supabase().from('ai_moderation_logs').insert({
       content_type: 'event',
       content_id: event.id,
       moderation_result: moderationResult.approved ? 'approved' : 'rejected',

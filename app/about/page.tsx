@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Users, Target, Shield, TrendingUp, MapPin, Heart } from "lucide-react"
 import Link from "next/link"
 import { LegalNotice } from "@/components/LegalNotice"
+import Image from "next/image"
 
 export default function AboutPage() {
   return (
