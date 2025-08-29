@@ -1,44 +1,21 @@
-import { authMiddleware } from '@clerk/nextjs'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export default authMiddleware({
-  // Public routes that don't require authentication
-  publicRoutes: [
-    '/',
-    '/about',
-    '/contact',
-    '/legal',
-    '/pricing',
-    '/browse',
-    '/events',
-    '/sign-in(.*)',
-    '/sign-up(.*)',
-    '/api/webhooks(.*)',
-    '/api/events',
-    '/api/get-ideas',
-    '/api/clear-ideas',
-    '/api/check-table',
-    '/api/test-db-columns',
-    '/api/test-db-tables',
-    '/api/test-delete',
-    '/api/test-saved-ideas',
-    '/api/upgrade-intent',
-    '/api/webhooks/stripe',
-    '/api/robots.txt',
-    '/api/sitemap.xml',
-    '/test',
-    '/_next(.*)',
-    '/favicon.ico',
-    '/robots.txt',
-    '/sitemap.xml'
-  ],
-  // Routes that can be accessed while signed out, but also show user content when signed in
-  ignoredRoutes: [
-    '/api/webhooks(.*)',
-    '/api/robots.txt',
-    '/api/sitemap.xml'
-  ]
-})
+export function middleware(request: NextRequest) {
+  // Add security headers
+  const response = NextResponse.next()
+  
+  // Security headers
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Referrer-Policy', 'origin-when-cross-origin')
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  
+  return response
+}
 
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
