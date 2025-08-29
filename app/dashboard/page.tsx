@@ -5,8 +5,22 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, TrendingUp, Users, Target, Calendar, MessageCircle } from "lucide-react"
 import Link from "next/link"
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs"
 
 export default function DashboardPage() {
+  return (
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      <SignedIn>
+        <DashboardContent />
+      </SignedIn>
+    </>
+  )
+}
+
+function DashboardContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-8">

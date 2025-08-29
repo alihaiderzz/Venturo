@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Upload, Target, Users, DollarSign, MessageCircle, CheckCircle, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs"
 
 const categories = [
   "Technology",
@@ -34,7 +35,16 @@ const stages = [
 ]
 
 export default function CreateListingPage() {
-  return <CreateListingContent />
+  return (
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      <SignedIn>
+        <CreateListingContent />
+      </SignedIn>
+    </>
+  )
 }
 
 function CreateListingContent() {

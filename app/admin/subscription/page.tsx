@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs"
 
 interface Subscription {
   id: string
@@ -46,7 +47,16 @@ interface Subscription {
 }
 
 export default function AdminSubscriptionPage() {
-  return <AdminSubscriptionContent />
+  return (
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      <SignedIn>
+        <AdminSubscriptionContent />
+      </SignedIn>
+    </>
+  )
 }
 
 function AdminSubscriptionContent() {
