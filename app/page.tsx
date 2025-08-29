@@ -5,8 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowRight, Shield, Rocket, Target, Zap, Menu, MessageCircle, Eye, Heart, UserPlus, X } from "lucide-react"
 import Image from "next/image"
 import { LegalNotice } from "@/components/LegalNotice"
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs'
-import { CustomUserButton } from '@/components/CustomUserButton'
 import { useState } from 'react'
 
 export default function HomePage() {
@@ -38,21 +36,12 @@ export default function HomePage() {
               <a href="/pricing" className="text-foreground hover:text-primary transition-colors font-medium">
                 Pricing
               </a>
-              <SignedOut>
-                <SignInButton>
-                  <Button variant="outline" className="font-medium bg-transparent">
-                    Sign In
-                  </Button>
-                </SignInButton>
-                <SignUpButton>
-                  <Button className="bg-primary hover:bg-primary/90 text-white font-medium">
-                    Get Started
-                  </Button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <CustomUserButton />
-              </SignedIn>
+              <Button variant="outline" className="font-medium bg-transparent">
+                <a href="/sign-in">Sign In</a>
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90 text-white font-medium">
+                <a href="/sign-up">Get Started</a>
+              </Button>
             </nav>
             <div className="md:hidden flex items-center space-x-2">
               <Button
@@ -120,25 +109,14 @@ export default function HomePage() {
                 Pricing
               </a>
               <div className="pt-4 border-t">
-                <SignedOut>
-                  <div className="space-y-3">
-                    <SignInButton>
-                      <Button variant="outline" className="w-full font-medium">
-                        Sign In
-                      </Button>
-                    </SignInButton>
-                    <SignUpButton>
-                      <Button className="w-full bg-[#21C087] hover:bg-[#1a9f6f] text-white font-medium">
-                        Get Started
-                      </Button>
-                    </SignUpButton>
-                  </div>
-                </SignedOut>
-                <SignedIn>
-                  <div className="flex justify-center">
-                    <CustomUserButton />
-                  </div>
-                </SignedIn>
+                <div className="space-y-3">
+                  <Button variant="outline" className="w-full font-medium">
+                    <a href="/sign-in">Sign In</a>
+                  </Button>
+                  <Button className="w-full bg-[#21C087] hover:bg-[#1a9f6f] text-white font-medium">
+                    <a href="/sign-up">Get Started</a>
+                  </Button>
+                </div>
               </div>
             </nav>
           </div>
@@ -386,8 +364,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-
 
       <section className="py-20 bg-gradient-to-r from-[#0B1E3C] to-[#21C087] relative overflow-hidden">
         <div className="absolute top-1/2 right-10 transform -translate-y-1/2 opacity-10">
