@@ -1,216 +1,175 @@
-import { Button } from "@/components/ui/button"
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Plus, MessageSquare, Heart, Eye, TrendingUp, Settings, User, Bookmark, Upload } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { ArrowRight, TrendingUp, Users, Target, Calendar, MessageCircle } from "lucide-react"
 import Link from "next/link"
-import { LegalNotice } from "@/components/LegalNotice"
-import { db } from "@/lib/store"
-import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs"
 
 export default function DashboardPage() {
   return (
-    <>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-      <SignedIn>
-        <div className="min-h-screen bg-background">
-          {/* Header with back button */}
-          <header className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/" aria-label="Back to home">
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back
-                    </Link>
-                  </Button>
-                  <h1 className="text-xl font-semibold">Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            Welcome to Your Dashboard
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Track your progress and manage your startup journey
+          </p>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white/70">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">+24</div>
+              <p className="text-xs text-muted-foreground">+12% from last month</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/70">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Connections</CardTitle>
+              <Users className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">8</div>
+              <p className="text-xs text-muted-foreground">+3 new this week</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/70">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Messages</CardTitle>
+              <MessageCircle className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">12</div>
+              <p className="text-xs text-muted-foreground">+5 unread</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/70">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Events</CardTitle>
+              <Calendar className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">3</div>
+              <p className="text-xs text-muted-foreground">2 upcoming</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-white/70 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-blue-500" />
+                Upload Your Idea
+              </CardTitle>
+              <CardDescription>
+                Share your startup idea with the community
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full bg-[#21C087] hover:bg-[#1BA876]">
+                <Link href="/create">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/70 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-green-500" />
+                Browse Ideas
+              </CardTitle>
+              <CardDescription>
+                Discover other startup ideas and connect
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/browse">
+                  Explore
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/70 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-purple-500" />
+                Events
+              </CardTitle>
+              <CardDescription>
+                Find networking events and workshops
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/events">
+                  View Events
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        <Card className="bg-white/70">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Your latest interactions and updates
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">New connection request from Sarah Chen</p>
+                  <p className="text-xs text-muted-foreground">2 hours ago</p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/profile" aria-label="Edit profile">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Profile
-                    </Link>
-                  </Button>
+                <Badge variant="secondary">Pending</Badge>
+              </div>
+
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Your idea "EcoDelivery Network" received 5 new views</p>
+                  <p className="text-xs text-muted-foreground">1 day ago</p>
                 </div>
+                <Badge variant="outline">Views</Badge>
+              </div>
+
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">You registered for "Startup Networking Night"</p>
+                  <p className="text-xs text-muted-foreground">3 days ago</p>
+                </div>
+                <Badge variant="outline">Event</Badge>
               </div>
             </div>
-          </header>
-
-          <main className="container mx-auto px-4 py-8">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Plus className="h-5 w-5 mr-2" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button asChild className="w-full">
-                    <Link href="/create">Create New Listing</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="/browse">Browse Ideas</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="/matches">View Matches</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* My Submissions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Upload className="h-5 w-5 mr-2" />
-                    My Submissions
-                  </CardTitle>
-                  <CardDescription>Your startup ideas and listings</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {db.ideas.filter(i => i.ownerId === "u1").map((idea) => (
-                    <div key={idea.id} className="p-3 border rounded-lg">
-                      <div className="font-semibold text-sm">{idea.title}</div>
-                      <div className="text-xs text-muted-foreground">{idea.category} • {idea.stage}</div>
-                      <div className="flex items-center space-x-2 mt-2">
-                        <span className="text-xs text-muted-foreground flex items-center">
-                          <Eye className="h-3 w-3 mr-1" />
-                          {idea.stats?.views || 0}
-                        </span>
-                        <span className="text-xs text-muted-foreground flex items-center">
-                          <Heart className="h-3 w-3 mr-1" />
-                          {idea.stats?.saves || 0}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {db.ideas.filter(i => i.ownerId === "u1").length === 0 && (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <p className="text-sm">No submissions yet</p>
-                      <Button asChild size="sm" className="mt-2">
-                        <Link href="/create">Create your first listing</Link>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Saved Startups */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Bookmark className="h-5 w-5 mr-2" />
-                    Saved Startups
-                  </CardTitle>
-                  <CardDescription>Ideas you've bookmarked</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {db.ideas.slice(0, 3).map((idea) => (
-                    <div key={idea.id} className="p-3 border rounded-lg">
-                      <div className="font-semibold text-sm">{idea.title}</div>
-                      <div className="text-xs text-muted-foreground">{idea.category} • {idea.stage}</div>
-                      <Button asChild size="sm" variant="ghost" className="mt-2 w-full">
-                        <Link href={`/idea/${idea.id}`}>View Details</Link>
-                      </Button>
-                    </div>
-                  ))}
-                  <Button asChild variant="outline" size="sm" className="w-full">
-                    <Link href="/saved">View All Saved</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2" />
-                    Your Stats
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Listings</span>
-                    <span className="font-semibold">{db.ideas.filter(i => i.ownerId === "u1").length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Profile Views</span>
-                    <span className="font-semibold">127</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Messages</span>
-                    <span className="font-semibold">8</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Matches</span>
-                    <span className="font-semibold">12</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <MessageSquare className="h-5 w-5 mr-2" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center space-x-3 text-sm">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                    <span>Your listing "EcoTech" was viewed</span>
-                  </div>
-                  <div className="flex items-center space-x-3 text-sm">
-                    <Heart className="h-4 w-4 text-muted-foreground" />
-                    <span>New match with Sarah Chen</span>
-                  </div>
-                  <div className="flex items-center space-x-3 text-sm">
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                    <span>Message from Marcus Williams</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Profile Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Profile Summary
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="text-sm">
-                    <span className="font-semibold">Role:</span> Founder
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">Location:</span> NSW
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">Sectors:</span> Sustainability
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">Status:</span> 
-                    <span className="ml-1 bg-[#F5B800] text-[#0B1E3C] px-2 py-0.5 rounded text-xs font-semibold">Pro</span>
-                  </div>
-                  <Button asChild size="sm" variant="outline" className="w-full mt-2">
-                    <Link href="/profile">Edit Profile</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="mt-8">
-              <LegalNotice />
-            </div>
-          </main>
-        </div>
-      </SignedIn>
-    </>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   )
 }
