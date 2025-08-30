@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Check, Zap } from "lucide-react"
+import { useState } from "react"
 
 interface PricingCardsProps {
   isYearly: boolean
@@ -12,6 +13,29 @@ interface PricingCardsProps {
 }
 
 export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps) {
+  const [loading, setLoading] = useState<string | null>(null)
+
+  async function goToCheckout(priceId: string, planName: string) {
+    setLoading(planName)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      });
+      const { url, error } = await res.json();
+      if (error) {
+        alert(error);
+      } else {
+        window.location.href = url;
+      }
+    } catch (error) {
+      alert('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <section className="py-12 sm:py-16 md:py-20 relative">
       <div className="container mx-auto px-4">
@@ -78,12 +102,23 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
                 <span className="text-white/80 text-sm md:text-base">/ month</span>
               </div>
               {isYearly && <div className="text-xs md:text-sm text-white/60">Yearly: $250 (2 months free)</div>}
-              <Button
-                className="w-full mt-4 bg-[#21C087] hover:bg-[#21C087]/90 text-white"
-                onClick={() => onUpgrade("Venturo Pro")}
-              >
-                Upgrade to Pro
-              </Button>
+              <div className="space-y-2 mt-4">
+                <Button
+                  className="w-full bg-[#21C087] hover:bg-[#21C087]/90 text-white"
+                  onClick={() => goToCheckout('price_pro_monthly', 'Venturo Pro Monthly')}
+                  disabled={loading === 'Venturo Pro Monthly'}
+                >
+                  {loading === 'Venturo Pro Monthly' ? 'Loading...' : 'Upgrade to Pro (Monthly)'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent border-white/20 text-white hover:bg-white/10"
+                  onClick={() => goToCheckout('price_pro_yearly', 'Venturo Pro Yearly')}
+                  disabled={loading === 'Venturo Pro Yearly'}
+                >
+                  {loading === 'Venturo Pro Yearly' ? 'Loading...' : 'Upgrade to Pro (Yearly)'}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 md:space-y-3">
@@ -143,12 +178,23 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
                 <span className="text-muted-foreground text-sm md:text-base">/ month</span>
               </div>
               {isYearly && <div className="text-xs md:text-sm text-muted-foreground">Yearly: $800 (2 months free)</div>}
-              <Button
-                className="w-full mt-4 bg-[#21C087] hover:bg-[#21C087]/90 text-white"
-                onClick={() => onUpgrade("Investor Premium")}
-              >
-                Upgrade to Premium
-              </Button>
+              <div className="space-y-2 mt-4">
+                <Button
+                  className="w-full bg-[#21C087] hover:bg-[#21C087]/90 text-white"
+                  onClick={() => goToCheckout('price_prem_monthly', 'Premium Monthly')}
+                  disabled={loading === 'Premium Monthly'}
+                >
+                  {loading === 'Premium Monthly' ? 'Loading...' : 'Upgrade to Premium (Monthly)'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent border-[#21C087] text-[#21C087] hover:bg-[#21C087]/10"
+                  onClick={() => goToCheckout('price_prem_yearly', 'Premium Yearly')}
+                  disabled={loading === 'Premium Yearly'}
+                >
+                  {loading === 'Premium Yearly' ? 'Loading...' : 'Upgrade to Premium (Yearly)'}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 md:space-y-3">
