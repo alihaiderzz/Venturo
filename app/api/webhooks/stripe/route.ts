@@ -1,59 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import Stripe from 'stripe';
 import { supabase } from '@/lib/supabaseClient';
-import { headers } from 'next/headers';
 
-export async function POST(request: NextRequest) {
-  const body = await request.text();
-  const signature = headers().get('stripe-signature');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2022-11-15',
+});
 
-  if (!signature) {
-    return NextResponse.json({ error: 'No signature' }, { status: 400 });
-  }
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-  let event;
-
+export async function POST(req: NextRequest) {
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err);
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-  }
+    const body = await req.text();
+    const signature = req.headers.get('stripe-signature')!;
 
-  try {
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    }
+
+    console.log('Webhook event received:', event.type);
+
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutSessionCompleted(event.data.object);
+        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
         break;
       
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object);
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
         break;
       
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object);
+        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
-      
-      case 'invoice.payment_succeeded':
-        await handleInvoicePaymentSucceeded(event.data.object);
-        break;
-      
-      case 'invoice.payment_failed':
-        await handleInvoicePaymentFailed(event.data.object);
-        break;
-      
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Webhook handler error:', error);
+    console.error('Webhook error:', error);
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
@@ -61,78 +52,170 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleCheckoutSessionCompleted(session: any) {
-  const { userId, plan, isYearly, type, boostQuantity, ideaId } = session.metadata;
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  console.log('Processing completed checkout session:', session.id);
 
-  if (type === 'subscription') {
-    // Update user subscription
-    const subscriptionTier = plan === 'Venturo Pro' ? 'pro' : 'investor';
-    const expiresAt = new Date();
-    expiresAt.setFullYear(expiresAt.getFullYear() + (isYearly === 'true' ? 1 : 0));
-
-    await supabase()
-      .from('user_profiles')
-      .update({
-        subscription_tier: subscriptionTier,
-        subscription_expires_at: expiresAt.toISOString(),
-      })
-      .eq('clerk_user_id', userId);
-
-    console.log(`Subscription updated for user ${userId}: ${subscriptionTier}`);
-  } else if (type === 'boost') {
+  if (session.metadata?.type === 'boost') {
     // Handle boost purchase
-    if (ideaId) {
-      // Apply boost to specific idea
-      await supabase()
-        .from('startup_ideas')
-        .update({
-          is_boosted: true,
-          boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-        })
-        .eq('id', ideaId)
-        .eq('user_id', userId);
+    await handleBoostPurchase(session);
+  } else {
+    // Handle subscription purchase
+    await handleSubscriptionPurchase(session);
+  }
+}
+
+async function handleBoostPurchase(session: Stripe.Checkout.Session) {
+  const ideaId = session.metadata?.ideaId;
+  if (!ideaId) {
+    console.error('No ideaId found in boost purchase metadata');
+    return;
+  }
+
+  try {
+    // Calculate boost expiry (7 days from now)
+    const boostExpiry = new Date();
+    boostExpiry.setDate(boostExpiry.getDate() + 7);
+
+    // Update the startup idea with boost information
+    const { data, error } = await supabase()
+      .from('startup_ideas')
+      .update({
+        is_boosted: true,
+        boosted_until: boostExpiry.toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', ideaId)
+      .select();
+
+    if (error) {
+      console.error('Error updating idea with boost:', error);
+    } else {
+      console.log('Successfully boosted idea:', ideaId, 'until:', boostExpiry);
+    }
+  } catch (error) {
+    console.error('Error handling boost purchase:', error);
+  }
+}
+
+async function handleSubscriptionPurchase(session: Stripe.Checkout.Session) {
+  const customerEmail = session.customer_details?.email;
+  if (!customerEmail) {
+    console.error('No customer email found in subscription purchase');
+    return;
+  }
+
+  try {
+    // Determine subscription tier based on price ID
+    const lineItems = session.line_items?.data;
+    if (!lineItems || lineItems.length === 0) {
+      console.error('No line items found in subscription purchase');
+      return;
     }
 
-    console.log(`Boost purchased for user ${userId}: ${boostQuantity} boosts`);
-  }
-}
+    const priceId = lineItems[0].price?.id;
+    let subscriptionTier = 'free';
 
-async function handleSubscriptionUpdated(subscription: any) {
-  const { userId, plan } = subscription.metadata;
-  const status = subscription.status;
+    if (priceId?.includes('pro')) {
+      subscriptionTier = 'premium';
+    } else if (priceId?.includes('prem')) {
+      subscriptionTier = 'investor';
+    }
 
-  if (status === 'active') {
-    const subscriptionTier = plan === 'Venturo Pro' ? 'pro' : 'investor';
-    const expiresAt = new Date(subscription.current_period_end * 1000);
+    // Calculate subscription expiry
+    const subscriptionExpiry = new Date();
+    if (priceId?.includes('yearly')) {
+      subscriptionExpiry.setFullYear(subscriptionExpiry.getFullYear() + 1);
+    } else {
+      subscriptionExpiry.setMonth(subscriptionExpiry.getMonth() + 1);
+    }
 
-    await supabase()
+    // Update user profile with subscription information
+    const { data, error } = await supabase()
       .from('user_profiles')
       .update({
         subscription_tier: subscriptionTier,
-        subscription_expires_at: expiresAt.toISOString(),
+        subscription_expires_at: subscriptionExpiry.toISOString(),
+        updated_at: new Date().toISOString()
       })
-      .eq('clerk_user_id', userId);
+      .eq('email', customerEmail)
+      .select();
+
+    if (error) {
+      console.error('Error updating user profile with subscription:', error);
+    } else {
+      console.log('Successfully updated subscription for user:', customerEmail, 'tier:', subscriptionTier);
+    }
+  } catch (error) {
+    console.error('Error handling subscription purchase:', error);
   }
 }
 
-async function handleSubscriptionDeleted(subscription: any) {
-  const { userId } = subscription.metadata;
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  // Handle subscription updates (renewals, cancellations, etc.)
+  console.log('Subscription updated:', subscription.id);
+  
+  const customerEmail = subscription.customer_details?.email;
+  if (!customerEmail) return;
 
-  await supabase()
-    .from('user_profiles')
-    .update({
-      subscription_tier: 'free',
-      subscription_expires_at: null,
-    })
-    .eq('clerk_user_id', userId);
+  try {
+    const status = subscription.status;
+    let subscriptionTier = 'free';
+
+    // Determine tier from price ID
+    const priceId = subscription.items.data[0]?.price.id;
+    if (priceId?.includes('pro')) {
+      subscriptionTier = 'premium';
+    } else if (priceId?.includes('prem')) {
+      subscriptionTier = 'investor';
+    }
+
+    // Calculate new expiry
+    const subscriptionExpiry = new Date(subscription.current_period_end * 1000);
+
+    if (status === 'active') {
+      // Update subscription
+      await supabase()
+        .from('user_profiles')
+        .update({
+          subscription_tier: subscriptionTier,
+          subscription_expires_at: subscriptionExpiry.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('email', customerEmail);
+    } else if (status === 'canceled' || status === 'unpaid') {
+      // Downgrade to free
+      await supabase()
+        .from('user_profiles')
+        .update({
+          subscription_tier: 'free',
+          subscription_expires_at: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('email', customerEmail);
+    }
+  } catch (error) {
+    console.error('Error handling subscription update:', error);
+  }
 }
 
-async function handleInvoicePaymentSucceeded(invoice: any) {
-  // Handle successful recurring payments
-  console.log(`Invoice payment succeeded: ${invoice.id}`);
-}
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  // Handle subscription cancellations
+  console.log('Subscription deleted:', subscription.id);
+  
+  const customerEmail = subscription.customer_details?.email;
+  if (!customerEmail) return;
 
-async function handleInvoicePaymentFailed(invoice: any) {
-  // Handle failed payments
-  console.log(`Invoice payment failed: ${invoice.id}`);
+  try {
+    // Downgrade to free
+    await supabase()
+      .from('user_profiles')
+      .update({
+        subscription_tier: 'free',
+        subscription_expires_at: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('email', customerEmail);
+  } catch (error) {
+    console.error('Error handling subscription deletion:', error);
+  }
 }

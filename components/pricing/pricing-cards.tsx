@@ -1,10 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Check, Zap } from "lucide-react"
-import { useState } from "react"
 
 interface PricingCardsProps {
   isYearly: boolean
@@ -31,6 +31,31 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
       }
     } catch (error) {
       alert('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  async function goToBoostCheckout(priceId: string, boostType: string) {
+    setLoading(boostType)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          priceId,
+          mode: 'payment',
+          ideaId: 'boost' // This will be replaced with actual idea ID when implemented
+        }),
+      });
+      const { url, error } = await res.json();
+      if (error) {
+        alert(error);
+      } else {
+        window.location.href = url;
+      }
+    } catch (error) {
+      alert('Failed to start boost checkout. Please try again.');
     } finally {
       setLoading(null)
     }
@@ -264,11 +289,20 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
             </CardHeader>
             <CardContent className="text-center space-y-3">
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button className="flex-1 bg-[#F5B800] hover:bg-[#F5B800]/90 text-black text-sm" onClick={onBoost}>
-                  Buy 1 Boost
+                <Button 
+                  className="flex-1 bg-[#F5B800] hover:bg-[#F5B800]/90 text-black text-sm" 
+                  onClick={() => goToBoostCheckout('prod_SxY9JTQs8iuyOH', 'Boost Single')}
+                  disabled={loading === 'Boost Single'}
+                >
+                  {loading === 'Boost Single' ? 'Loading...' : 'Buy 1 Boost'}
                 </Button>
-                <Button variant="outline" className="flex-1 bg-transparent text-sm" onClick={onBoost}>
-                  Buy 4 for $100
+                <Button 
+                  variant="outline" 
+                  className="flex-1 bg-transparent text-sm" 
+                  onClick={() => goToBoostCheckout('prod_SxY9JTQs8iuyOH', 'Boost Pack')}
+                  disabled={loading === 'Boost Pack'}
+                >
+                  {loading === 'Boost Pack' ? 'Loading...' : 'Buy 4 for $100'}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground px-2">Visibility improvements are not guaranteed outcomes.</p>
