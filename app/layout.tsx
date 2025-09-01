@@ -19,7 +19,7 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://joinventuro.com"),
   title: "Venturo - Co-own the Future. Find Your First Collaborators.",
   description:
     "The community where Aussies showcase ideas and meet the right people to build together. Find collaborators, mentors, and backers.",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     title: "Venturo - Co-own the Future",
     description:
       "Showcase ideas and meet collaborators, mentors, and backers across Australia.",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://joinventuro.com",
     siteName: "Venturo",
     images: [{ url: "/venturo-logo-full.png", width: 1200, height: 630, alt: "Venturo" }],
     locale: "en_AU",

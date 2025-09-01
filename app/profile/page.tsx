@@ -91,9 +91,9 @@ export default function ProfilePage() {
 
     setSaving(true)
     try {
-      const response = await fetch("/api/debug-profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/user-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: profile.email,
           full_name: profile.full_name,
@@ -109,29 +109,28 @@ export default function ProfilePage() {
           indicative_ticket: profile.indicative_ticket,
           social_links: profile.social_links
         }),
-      })
+      });
 
-      if (response.ok) {
-        const result = await response.json()
-        console.log("Profile saved successfully!", result)
-        toast({
-          title: "Success!",
-          description: "Profile saved successfully! 🎉",
-        })
-      } else {
-        const errorData = await response.json()
-        console.error("Failed to save profile:", errorData.error)
-        toast({
-          title: "Error",
-          description: errorData.error || "Failed to save profile",
-          variant: "destructive",
-        })
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Profile update failed:', data);
+        toast({ 
+          title: 'Failed to update profile', 
+          description: data.error ?? 'Please try again.',
+          variant: "destructive"
+        });
+        return;
       }
-    } catch (error) {
+
+      toast({ 
+        title: 'Profile saved!',
+        description: 'Your profile has been updated successfully! 🎉'
+      });
+    } catch (error: any) {
       console.error("Error saving profile:", error)
       toast({
         title: "Error",
-        description: "Error saving profile. Please try again.",
+        description: `Error saving profile: ${error?.message || 'Unknown error'}`,
         variant: "destructive",
       })
     } finally {
@@ -163,9 +162,9 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href="/dashboard" aria-label="Back to dashboard">
+                    <Link href="/" aria-label="Back to home">
                       <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back
+                      Back to Home
                     </Link>
                   </Button>
                   <h1 className="text-xl font-semibold">Edit Profile</h1>

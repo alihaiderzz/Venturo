@@ -1,7 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { SignInButton, SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs'
+import { UserProfileButton } from '@/components/UserProfileButton'
 import { ArrowLeft } from "lucide-react"
 
 export function PricingHeader() {
@@ -52,7 +53,7 @@ export function PricingHeader() {
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <UserProfileButton />
             </SignedIn>
           </nav>
           <div className="md:hidden flex items-center space-x-2">
@@ -69,7 +70,7 @@ export function PricingHeader() {
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <UserProfileButton />
             </SignedIn>
           </div>
         </div>

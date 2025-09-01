@@ -23,12 +23,12 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ priceId }),
       });
-      const { url, error } = await res.json();
-      if (error) {
-        alert(error);
-      } else {
-        window.location.href = url;
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Checkout failed');
+        return;
       }
+      window.location.href = data.url;
     } catch (error) {
       alert('Failed to start checkout. Please try again.');
     } finally {
@@ -48,12 +48,12 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
           ideaId: 'boost' // This will be replaced with actual idea ID when implemented
         }),
       });
-      const { url, error } = await res.json();
-      if (error) {
-        alert(error);
-      } else {
-        window.location.href = url;
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Checkout failed');
+        return;
       }
+      window.location.href = data.url;
     } catch (error) {
       alert('Failed to start boost checkout. Please try again.');
     } finally {
@@ -130,7 +130,7 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
               <div className="space-y-2 mt-4">
                 <Button
                   className="w-full bg-[#21C087] hover:bg-[#21C087]/90 text-white"
-                  onClick={() => goToCheckout('price_pro_monthly', 'Venturo Pro Monthly')}
+                  onClick={() => goToCheckout('price_1S1crtAdhkHpNGWt55Yd4qze', 'Venturo Pro Monthly')}
                   disabled={loading === 'Venturo Pro Monthly'}
                 >
                   {loading === 'Venturo Pro Monthly' ? 'Loading...' : 'Upgrade to Pro (Monthly)'}
@@ -138,7 +138,7 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
                 <Button
                   variant="outline"
                   className="w-full bg-transparent border-white/20 text-white hover:bg-white/10"
-                  onClick={() => goToCheckout('price_pro_yearly', 'Venturo Pro Yearly')}
+                  onClick={() => goToCheckout('price_1S1csLAdhkHpNGWt9DocwLth', 'Venturo Pro Yearly')}
                   disabled={loading === 'Venturo Pro Yearly'}
                 >
                   {loading === 'Venturo Pro Yearly' ? 'Loading...' : 'Upgrade to Pro (Yearly)'}
@@ -206,7 +206,7 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
               <div className="space-y-2 mt-4">
                 <Button
                   className="w-full bg-[#21C087] hover:bg-[#21C087]/90 text-white"
-                  onClick={() => goToCheckout('price_prem_monthly', 'Premium Monthly')}
+                  onClick={() => goToCheckout('price_1S1ct8AdhkHpNGWt0ZpnMNzW', 'Premium Monthly')}
                   disabled={loading === 'Premium Monthly'}
                 >
                   {loading === 'Premium Monthly' ? 'Loading...' : 'Upgrade to Premium (Monthly)'}
@@ -214,7 +214,7 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
                 <Button
                   variant="outline"
                   className="w-full bg-transparent border-[#21C087] text-[#21C087] hover:bg-[#21C087]/10"
-                  onClick={() => goToCheckout('price_prem_yearly', 'Premium Yearly')}
+                  onClick={() => goToCheckout('price_1S1ctXAdhkHpNGWtF9uqoaSV', 'Premium Yearly')}
                   disabled={loading === 'Premium Yearly'}
                 >
                   {loading === 'Premium Yearly' ? 'Loading...' : 'Upgrade to Premium (Yearly)'}
@@ -291,7 +291,7 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   className="flex-1 bg-[#F5B800] hover:bg-[#F5B800]/90 text-black text-sm" 
-                  onClick={() => goToBoostCheckout('prod_SxY9JTQs8iuyOH', 'Boost Single')}
+                  onClick={() => goToBoostCheckout('price_1S1d2xAdhkHpNGWtwjvzRdWg', 'Boost Single')}
                   disabled={loading === 'Boost Single'}
                 >
                   {loading === 'Boost Single' ? 'Loading...' : 'Buy 1 Boost'}
@@ -299,7 +299,7 @@ export function PricingCards({ isYearly, onUpgrade, onBoost }: PricingCardsProps
                 <Button 
                   variant="outline" 
                   className="flex-1 bg-transparent text-sm" 
-                  onClick={() => goToBoostCheckout('prod_SxY9JTQs8iuyOH', 'Boost Pack')}
+                  onClick={() => goToBoostCheckout('price_1S1d7xAdhkHpNGWt4uTqHZCG', 'Boost Pack')}
                   disabled={loading === 'Boost Pack'}
                 >
                   {loading === 'Boost Pack' ? 'Loading...' : 'Buy 4 for $100'}

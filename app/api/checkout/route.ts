@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2022-11-15' });
+// IMPORTANT: this API route must run on the Node runtime, not Edge:
+export const runtime = 'nodejs';
+
+const secret = process.env.STRIPE_SECRET_KEY;
+if (!secret) {
+  // Fail fast at module load if missing
+  throw new Error('Missing STRIPE_SECRET_KEY in env');
+}
+const stripe = new Stripe(secret, { apiVersion: '2022-11-15' });
 
 export async function POST(req: Request) {
   try {
-    const { priceId, mode = 'subscription', ideaId } = await req.json(); // e.g. 'price_123'
+    const { priceId, mode = 'subscription', ideaId } = await req.json();
     
+    if (!priceId) {
+      return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
+    }
+
     const sessionConfig: any = {
       mode: mode,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -17,7 +29,6 @@ export async function POST(req: Request) {
 
     // For boost purchases, add metadata to track which idea is being boosted
     if (mode === 'payment' && ideaId) {
-      sessionConfig.mode = 'payment';
       sessionConfig.metadata = {
         ideaId: ideaId,
         type: 'boost'
@@ -26,7 +37,7 @@ export async function POST(req: Request) {
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
     return NextResponse.json({ url: session.url });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

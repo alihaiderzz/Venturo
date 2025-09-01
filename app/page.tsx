@@ -6,7 +6,7 @@ import { ArrowRight, Shield, Rocket, Target, Zap, Menu, MessageCircle, Eye, Hear
 import Image from "next/image"
 import { LegalNotice } from "@/components/LegalNotice"
 import { SignInButton, SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs'
-import { CustomUserButton } from '@/components/CustomUserButton'
+import { UserProfileButton } from '@/components/UserProfileButton'
 import { useState } from 'react'
 
 export default function HomePage() {
@@ -14,44 +14,46 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <a href="/" aria-label="Venturo home">
-                <Image src="/venturo-logo-full.png" alt="Venturo" width={180} height={60} className="h-12 w-auto" />
+              <a href="/" aria-label="Venturo home" className="hover:opacity-80 transition-opacity">
+                <Image src="/venturo-logo-full.png" alt="Venturo" width={180} height={60} className="h-10 sm:h-12 w-auto" />
               </a>
             </div>
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#how-it-works" className="text-foreground hover:text-primary transition-colors font-medium">
+            <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
+              <a href="#how-it-works" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base">
                 How it Works
               </a>
-              <a href="#why-venturo" className="text-foreground hover:text-primary transition-colors font-medium">
+              <a href="#why-venturo" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base">
                 Why Venturo
               </a>
-              <a href="/browse" className="text-foreground hover:text-primary transition-colors font-medium">
+              <a href="/browse" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base">
                 Browse Ideas
               </a>
-              <a href="/events" className="text-foreground hover:text-primary transition-colors font-medium">
+              <a href="/events" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base">
                 Events
               </a>
-              <a href="/pricing" className="text-foreground hover:text-primary transition-colors font-medium">
+              <a href="/pricing" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base">
                 Pricing
               </a>
               <SignedOut>
-                <SignInButton>
-                  <Button variant="outline" className="font-medium bg-transparent">
-                    Sign In
-                  </Button>
-                </SignInButton>
-                <SignUpButton>
-                  <Button className="bg-primary hover:bg-primary/90 text-white font-medium">
-                    Get Started
-                  </Button>
-                </SignUpButton>
+                <div className="flex items-center space-x-3">
+                  <SignInButton>
+                    <Button variant="outline" className="font-medium bg-transparent text-sm lg:text-base px-3 lg:px-4">
+                      Sign In
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton>
+                    <Button className="bg-[#21C087] hover:bg-[#1a9f6f] text-white font-medium text-sm lg:text-base px-3 lg:px-4">
+                      Get Started
+                    </Button>
+                  </SignUpButton>
+                </div>
               </SignedOut>
               <SignedIn>
-                <CustomUserButton />
+                <UserProfileButton />
               </SignedIn>
             </nav>
             <div className="md:hidden flex items-center space-x-2">
@@ -70,51 +72,51 @@ export default function HomePage() {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
-          <div className="bg-white h-full w-80 max-w-[80vw] shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b">
+        <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white h-full w-80 max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-in-out">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-gray-50 to-white">
               <Image src="/venturo-logo-full.png" alt="Venturo" width={140} height={40} className="h-8 w-auto" />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2"
+                className="p-2 hover:bg-gray-100 rounded-full"
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <nav className="p-4 space-y-4">
+            <nav className="p-4 space-y-2">
               <a 
                 href="#how-it-works" 
-                className="block text-foreground hover:text-primary transition-colors font-medium py-2"
+                className="block text-foreground hover:text-primary transition-colors font-medium py-3 px-3 rounded-lg hover:bg-gray-50"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 How it Works
               </a>
               <a 
                 href="#why-venturo" 
-                className="block text-foreground hover:text-primary transition-colors font-medium py-2"
+                className="block text-foreground hover:text-primary transition-colors font-medium py-3 px-3 rounded-lg hover:bg-gray-50"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Why Venturo
               </a>
               <a 
                 href="/browse" 
-                className="block text-foreground hover:text-primary transition-colors font-medium py-2"
+                className="block text-foreground hover:text-primary transition-colors font-medium py-3 px-3 rounded-lg hover:bg-gray-50"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse Ideas
               </a>
               <a 
                 href="/events" 
-                className="block text-foreground hover:text-primary transition-colors font-medium py-2"
+                className="block text-foreground hover:text-primary transition-colors font-medium py-3 px-3 rounded-lg hover:bg-gray-50"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Events
               </a>
               <a 
                 href="/pricing" 
-                className="block text-foreground hover:text-primary transition-colors font-medium py-2"
+                className="block text-foreground hover:text-primary transition-colors font-medium py-3 px-3 rounded-lg hover:bg-gray-50"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Pricing
@@ -136,7 +138,7 @@ export default function HomePage() {
                 </SignedOut>
                 <SignedIn>
                   <div className="flex justify-center">
-                    <CustomUserButton />
+                    <UserProfileButton />
                   </div>
                 </SignedIn>
               </div>
@@ -155,19 +157,19 @@ export default function HomePage() {
         <div className="absolute bottom-32 left-20 opacity-10 animate-pulse delay-1000">
           <Image src="/venturo-logo-mark.png" alt="" width={60} height={60} className="w-12 h-12" />
         </div>
-        <div className="relative container mx-auto px-4 py-16 sm:py-20 lg:py-32">
+        <div className="relative container mx-auto px-4 py-12 sm:py-16 lg:py-24 xl:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight text-foreground">
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight text-foreground">
               Co-own the Future —
               <br />
               <span className="text-[#21C087]">Find Your First Collaborators.</span>
             </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl mb-6 sm:mb-8 text-muted-foreground leading-relaxed max-w-3xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-muted-foreground leading-relaxed max-w-3xl mx-auto px-2 sm:px-4">
               Venturo is the community where Aussies showcase ideas and meet the right people to build
               together. No gatekeepers, no fuss.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-              <Button asChild size="lg" className="bg-[#21C087] hover:bg-[#1a9f6f] text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg min-h-11">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2 sm:px-4">
+              <Button asChild size="lg" className="bg-[#21C087] hover:bg-[#1a9f6f] text-white font-semibold px-4 sm:px-6 lg:px-8 py-3 sm:py-4 text-sm sm:text-base lg:text-lg min-h-11 shadow-lg hover:shadow-xl transition-all duration-200">
                 <a href="/create" aria-label="Upload your idea">
                   Upload Your Idea
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -177,7 +179,7 @@ export default function HomePage() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-[#0B1E3C] text-[#0B1E3C] hover:bg-[#0B1E3C] hover:text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-transparent min-h-11"
+                className="border-[#0B1E3C] text-[#0B1E3C] hover:bg-[#0B1E3C] hover:text-white font-semibold px-4 sm:px-6 lg:px-8 py-3 sm:py-4 text-sm sm:text-base lg:text-lg bg-transparent min-h-11 shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <a href="/browse" aria-label="Find startups to back">Find Startups to Back</a>
               </Button>

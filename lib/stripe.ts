@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 
 // Initialize Stripe with your secret key
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2024-06-20',
 });
 
 // Stripe publishable key for client-side
@@ -18,16 +18,15 @@ export const STRIPE_PRODUCTS = {
   BOOST_PACK: 'prod_BoostPack',
 };
 
-// Price IDs for your pricing plans
-// TODO: Replace these with your actual Stripe price IDs
-export const STRIPE_PRICES = {
-  VENTURO_PRO_MONTHLY: 'price_VenturoProMonthly', // Replace with actual price ID
-  VENTURO_PRO_YEARLY: 'price_VenturoProYearly', // Replace with actual price ID
-  INVESTOR_PREMIUM_MONTHLY: 'price_InvestorPremiumMonthly', // Replace with actual price ID
-  INVESTOR_PREMIUM_YEARLY: 'price_InvestorPremiumYearly', // Replace with actual price ID
-  BOOST_SINGLE: 'price_BoostSingle', // Replace with actual price ID
-  BOOST_PACK: 'price_BoostPack', // Replace with actual price ID
-};
+// Stripe Price IDs
+const STRIPE_PRICES = {
+  VENTURO_PRO_MONTHLY: process.env.STRIPE_VENTURO_PRO_MONTHLY_PRICE_ID || 'price_1S1crtAdhkHpNGWt55Yd4qze',
+  VENTURO_PRO_YEARLY: process.env.STRIPE_VENTURO_PRO_YEARLY_PRICE_ID || 'price_1S1csLAdhkHpNGWt9DocwLth',
+  INVESTOR_PREMIUM_MONTHLY: process.env.STRIPE_INVESTOR_PREMIUM_MONTHLY_PRICE_ID || 'price_1S1ct8AdhkHpNGWt0ZpnMNzW',
+  INVESTOR_PREMIUM_YEARLY: process.env.STRIPE_INVESTOR_PREMIUM_YEARLY_PRICE_ID || 'price_1S1ctXAdhkHpNGWtF9uqoaSV',
+  BOOST_SINGLE: process.env.STRIPE_BOOST_SINGLE_PRICE_ID || 'price_1S1d2xAdhkHpNGWtwjvzRdWg',
+  BOOST_PACK: process.env.STRIPE_BOOST_PACK_PRICE_ID || 'price_1S1d7xAdhkHpNGWt4uTqHZCG',
+} as const;
 
 // Helper function to get price ID based on plan and billing cycle
 export function getPriceId(plan: string, isYearly: boolean): string {

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     let session;
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joinventuro.com';
 
     if (plan) {
       // Subscription checkout

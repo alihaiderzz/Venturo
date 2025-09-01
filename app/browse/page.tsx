@@ -195,29 +195,36 @@ export default function BrowsePage() {
   const hasActiveFilters = searchTerm || selectedCategory !== "all" || selectedStage !== "all" || selectedState !== "all" || selectedNeeds !== "all"
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <main className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="mb-4 sm:mb-6">
         <LegalNotice />
       </div>
       
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-6">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+        <Button variant="ghost" size="sm" asChild className="self-start">
           <Link href="/" aria-label="Back to home">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Browse Ideas</h1>
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Browse Ideas
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base mt-1">
+            Discover innovative ideas from Australia's entrepreneurial community
+          </p>
+        </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="mb-8 space-y-4">
+      <div className="mb-6 sm:mb-8 space-y-4">
         {/* Enhanced Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search by title, description, category, or creator... (⌘K)"
+            placeholder="Search ideas... (⌘K)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setSearchFocused(true)}
@@ -243,7 +250,7 @@ export default function BrowsePage() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger>
               <SelectValue placeholder="Category" />
@@ -396,7 +403,7 @@ export default function BrowsePage() {
 
       {/* Ideas Grid */}
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
@@ -417,23 +424,23 @@ export default function BrowsePage() {
           ))}
         </div>
       ) : !error && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredIdeas.map((idea) => (
-            <Card key={idea.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="text-lg">{idea.title}</span>
+            <Card key={idea.id} className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-start justify-between gap-2">
+                  <span className="text-base sm:text-lg leading-tight">{idea.title}</span>
                   {idea.boostedUntil && (
-                    <Badge className="bg-[#F5B800] text-black text-xs">Boosted</Badge>
+                    <Badge className="bg-[#F5B800] text-black text-xs flex-shrink-0">Boosted</Badge>
                   )}
                 </CardTitle>
-                <CardDescription className="line-clamp-2">{idea.one_liner}</CardDescription>
+                <CardDescription className="line-clamp-2 text-sm">{idea.one_liner}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground mb-3">
+              <CardContent className="pt-0">
+                <div className="text-xs sm:text-sm text-muted-foreground mb-3">
                   {idea.category} • {idea.owner?.full_name || 'Anonymous'}
                 </div>
-                <div className="flex gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4">
                   <Badge variant="outline" className="text-xs">
                     {idea.category}
                   </Badge>

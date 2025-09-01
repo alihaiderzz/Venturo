@@ -63,11 +63,21 @@ export function UpgradeModals({
       }
     } catch (error) {
       console.error('Checkout error:', error)
-      toast({
-        title: "Payment Error",
-        description: "Failed to start checkout. Please try again.",
-        variant: "destructive",
-      })
+      
+      // Check if it's a configuration error
+      if (error instanceof Error && error.message.includes('Payment system not fully configured')) {
+        toast({
+          title: "Payment System Unavailable",
+          description: "Payment processing is being set up. Please try again later or contact support.",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Payment Error",
+          description: "Failed to start checkout. Please try again.",
+          variant: "destructive",
+        })
+      }
     } finally {
       setLoading(false)
     }

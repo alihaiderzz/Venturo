@@ -1,7 +1,20 @@
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/profile(.*)',
+  '/create(.*)',
+  '/admin(.*)',
+  '/api/user-profile(.*)',
+  '/api/debug-profile(.*)',
+  '/api/test-profile(.*)',
+  '/api/upload-idea(.*)',
+  '/api/events(.*)',
+  '/api/admin(.*)'
+])
+
+export default clerkMiddleware((auth, req) => {
   // Add security headers
   const response = NextResponse.next()
   
@@ -12,10 +25,17 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block')
   
   return response
-}
+})
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

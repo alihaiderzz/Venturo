@@ -72,7 +72,7 @@ const roleConfig = {
   }
 }
 
-export function UserProfileModal({ children }: { children: React.ReactNode }) {
+export function UserProfileModal({ children, onProfileUpdate }: { children: React.ReactNode, onProfileUpdate?: () => void }) {
   const { user } = useUser()
   const { toast } = useToast()
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -229,6 +229,10 @@ export function UserProfileModal({ children }: { children: React.ReactNode }) {
         const result = await response.json()
         await fetchProfile()
         setIsEditing(false)
+        // Call the callback to refresh parent component
+        if (onProfileUpdate) {
+          onProfileUpdate()
+        }
         toast({
           title: "Success!",
           description: "Profile updated successfully!",

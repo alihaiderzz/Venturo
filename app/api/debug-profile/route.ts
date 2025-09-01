@@ -6,114 +6,140 @@ export async function POST(req: NextRequest) {
   try {
     console.log("=== DEBUG PROFILE API START ===")
     
-    // Step 1: Check authentication
+    // Step 1: Get user ID from Clerk
     const { userId } = await auth()
-    console.log("Step 1 - User ID:", userId)
+    console.log("Clerk userId:", userId)
     
     if (!userId) {
-      console.log("Step 1 - FAILED: No user ID")
-      return NextResponse.json(
-        { error: "Unauthorized", step: 1 },
-        { status: 401 }
-      )
+      console.log("No userId found - unauthorized")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    console.log("Step 1 - SUCCESS: User authenticated")
 
     // Step 2: Parse request body
     const body = await req.json()
-    console.log("Step 2 - Request body:", JSON.stringify(body, null, 2))
+    console.log("Request body:", body)
+    
+    const { 
+      email,
+      full_name, 
+      role, 
+      bio, 
+      location, 
+      website,
+      company,
+      state, 
+      sectors, 
+      skills, 
+      time_commitment, 
+      indicative_ticket, 
+      social_links 
+    } = body
 
-    // Step 3: Test direct Supabase connection
-    console.log("Step 3 - Testing Supabase connection...")
-    const { data: testData, error: testError } = await supabase()
+    // Step 3: Check if profile exists
+    console.log("Checking if profile exists...")
+    const { data: existingProfile, error: fetchError } = await supabase()
       .from('user_profiles')
       .select('*')
       .eq('clerk_user_id', userId)
       .single()
     
-    console.log("Step 3 - Direct query result:", { testData, testError })
+    console.log("Fetch result:", { existingProfile, fetchError })
 
-    // Step 4: Try to create/update profile
-    console.log("Step 4 - Attempting to save profile...")
-    
-    const profileData = {
-      clerk_user_id: userId,
-      email: body.email || "test@example.com",
-      full_name: body.full_name || "Test User",
-      role: body.role || "founder",
-      bio: body.bio || "",
-      location: body.location || "",
-      website: body.website || "",
-      company: body.company || "",
-      state: body.state || "",
-      sectors: body.sectors || [],
-      skills: body.skills || [],
-      time_commitment: body.time_commitment || "part-time",
-      indicative_ticket: body.indicative_ticket || "$5k-$25k",
-      social_links: body.social_links || {},
-      profile_completed: true
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.log("Error fetching profile:", fetchError)
+      return NextResponse.json({ error: "Failed to fetch profile", details: fetchError }, { status: 500 })
     }
 
-    console.log("Step 4 - Profile data to save:", JSON.stringify(profileData, null, 2))
+    let result: any
+    let action: string
 
-    let result
-    if (testData) {
-      // Update existing profile
-      console.log("Step 4 - Updating existing profile...")
+    if (existingProfile) {
+      // Step 4a: Update existing profile
+      console.log("Updating existing profile...")
       const { data, error } = await supabase()
         .from('user_profiles')
-        .update(profileData)
+        .update({
+          email,
+          full_name,
+          role,
+          bio,
+          location,
+          website,
+          company,
+          state,
+          sectors,
+          skills,
+          time_commitment,
+          indicative_ticket,
+          social_links,
+          profile_completed: true,
+          updated_at: new Date().toISOString()
+        })
         .eq('clerk_user_id', userId)
         .select()
         .single()
       
-      result = { data, error, action: 'update' }
+      console.log("Update result:", { data, error })
+      
+      if (error) {
+        console.log("Update error:", error)
+        return NextResponse.json({ error: "Failed to update profile", details: error }, { status: 500 })
+      }
+      
+      result = data
+      action = 'updated'
     } else {
-      // Create new profile
-      console.log("Step 4 - Creating new profile...")
+      // Step 4b: Create new profile
+      console.log("Creating new profile...")
       const { data, error } = await supabase()
         .from('user_profiles')
-        .insert(profileData)
+        .insert({
+          clerk_user_id: userId,
+          email: email || "",
+          full_name,
+          role,
+          bio,
+          location,
+          website,
+          company,
+          state,
+          sectors,
+          skills,
+          time_commitment,
+          indicative_ticket,
+          social_links,
+          profile_completed: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .select()
         .single()
       
-      result = { data, error, action: 'create' }
+      console.log("Create result:", { data, error })
+      
+      if (error) {
+        console.log("Create error:", error)
+        return NextResponse.json({ error: "Failed to create profile", details: error }, { status: 500 })
+      }
+      
+      result = data
+      action = 'created'
     }
 
-    console.log("Step 4 - Save result:", JSON.stringify(result, null, 2))
-
-    if (result.error) {
-      console.log("Step 4 - FAILED:", result.error)
-      return NextResponse.json(
-        { 
-          error: "Failed to save profile", 
-          details: result.error,
-          step: 4,
-          action: result.action
-        },
-        { status: 500 }
-      )
-    }
-
-    console.log("Step 4 - SUCCESS: Profile saved")
-    console.log("=== DEBUG PROFILE API END ===")
-
+    console.log("=== DEBUG PROFILE API SUCCESS ===")
     return NextResponse.json({ 
       success: true, 
-      message: "Profile saved successfully!",
-      profile: result.data,
-      action: result.action
+      message: "Profile saved successfully!", 
+      profile: result, 
+      action 
     })
-
+    
   } catch (error) {
     console.error("=== DEBUG PROFILE API ERROR ===", error)
-    return NextResponse.json(
-      { 
-        error: "Internal server error", 
-        details: error,
-        step: 'exception'
-      },
-      { status: 500 }
-    )
+    return NextResponse.json({ 
+      error: "Internal server error", 
+      details: error, 
+      step: 'exception' 
+    }, { status: 500 })
   }
 }
