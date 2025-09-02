@@ -1,18 +1,5 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/profile(.*)',
-  '/create(.*)',
-  '/admin(.*)',
-  '/api/user-profile(.*)',
-  '/api/debug-profile(.*)',
-  '/api/test-profile(.*)',
-  '/api/upload-idea(.*)',
-  '/api/events(.*)',
-  '/api/admin(.*)'
-])
 
 export default clerkMiddleware((auth, req) => {
   // Add security headers
@@ -38,4 +25,5 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
+  runtime: 'nodejs' // Force Node.js runtime to avoid Edge Function issues
 }
