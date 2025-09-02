@@ -1,29 +1,22 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
 
+// Run Clerk at the edge, but keep it lightweight: no Node-only libs here
 export default clerkMiddleware((auth, req) => {
-  // Add security headers
-  const response = NextResponse.next()
+  // Only add basic security headers that work in Edge runtime
+  const response = new Response()
   
-  // Security headers
+  // Edge-safe security headers
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
   
   return response
 })
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Run on all paths except: _next/static, _next/image, and common static file extensions
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|gif|webp|svg|ico)$).*)",
   ],
-  runtime: 'nodejs' // Force Node.js runtime to avoid Edge Function issues
+  // No runtime specified - let Vercel use Edge runtime for middleware
 }
