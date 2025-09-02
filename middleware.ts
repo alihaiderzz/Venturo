@@ -1,6 +1,5 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
 
-// Run Clerk at the edge, but keep it lightweight: no Node-only libs here
 export default clerkMiddleware((auth, req) => {
   // Only add basic security headers that work in Edge runtime
   const response = new Response()
@@ -15,8 +14,7 @@ export default clerkMiddleware((auth, req) => {
 
 export const config = {
   matcher: [
-    // Run on all paths except: _next/static, _next/image, and common static file extensions
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|gif|webp|svg|ico)$).*)",
+    // Run middleware on all routes except Next.js internals and static files
+    "/((?!api/webhooks|_next/static|_next/image|favicon.ico).*)",
   ],
-  // No runtime specified - let Vercel use Edge runtime for middleware
-}
+};
