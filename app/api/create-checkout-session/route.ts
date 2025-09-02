@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { stripe, getPriceId, getBoostPriceId } from '@/lib/stripe';
+import { getStripeClient, getPriceId, getBoostPriceId } from '@/lib/stripe';
 import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: NextRequest) {
@@ -14,15 +14,18 @@ export async function POST(request: NextRequest) {
     const { plan, isYearly, boostQuantity, ideaId } = body;
 
     // Get user profile
-    const { data: userProfile } = await supabase()
+    const { data: userProfile, error: profileError } = await supabase()
       .from('user_profiles')
       .select('email, full_name')
       .eq('clerk_user_id', userId)
       .single();
 
-    if (!userProfile) {
+    if (profileError || !userProfile) {
       return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
     }
+
+    // Type assertion to fix TypeScript inference issue
+    const profile = userProfile as { email: string; full_name: string };
 
     let session;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joinventuro.com';
@@ -31,7 +34,7 @@ export async function POST(request: NextRequest) {
       // Subscription checkout
       const priceId = getPriceId(plan, isYearly);
       
-      session = await stripe.checkout.sessions.create({
+      session = await getStripeClient().checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
           {
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
         mode: 'subscription',
         success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
-        customer_email: userProfile.email,
+        customer_email: profile.email,
         metadata: {
           userId,
           plan,
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
       // Boost checkout
       const priceId = getBoostPriceId(boostQuantity);
       
-      session = await stripe.checkout.sessions.create({
+      session = await getStripeClient().checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
           {
@@ -72,7 +75,7 @@ export async function POST(request: NextRequest) {
         mode: 'payment',
         success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
-        customer_email: userProfile.email,
+        customer_email: profile.email,
         metadata: {
           userId,
           boostQuantity: boostQuantity.toString(),

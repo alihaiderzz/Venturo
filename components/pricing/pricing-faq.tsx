@@ -44,22 +44,6 @@ export function PricingFAQ() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="student" className="border rounded-lg px-4 md:px-6">
-              <AccordionTrigger className="text-left text-sm md:text-base">
-                Do you offer student pricing?
-              </AccordionTrigger>
-              <AccordionContent className="text-sm md:text-base">
-                Yes!{" "}
-                <a
-                  href="mailto:support@venturo.com?subject=Student Discount Request"
-                  className="text-primary hover:underline"
-                >
-                  Request student discount
-                </a>{" "}
-                - we'll need your email and proof of enrollment.
-              </AccordionContent>
-            </AccordionItem>
-
             <AccordionItem value="refunds" className="border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left text-sm md:text-base">What's your refund policy?</AccordionTrigger>
               <AccordionContent className="text-sm md:text-base">

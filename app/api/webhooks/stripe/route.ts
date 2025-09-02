@@ -2,14 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabase } from '@/lib/supabaseClient';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2022-11-15',
-});
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-
 export async function POST(req: NextRequest) {
   try {
+    const secret = process.env.STRIPE_SECRET_KEY;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    
+    if (!secret || !webhookSecret) {
+      console.error('Missing Stripe environment variables');
+      return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
+    }
+    
+    const stripe = new Stripe(secret, {
+      apiVersion: '2024-06-20',
+    });
+
     const body = await req.text();
     const signature = req.headers.get('stripe-signature')!;
 
