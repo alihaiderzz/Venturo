@@ -1,20 +1,24 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+// middleware.ts (Root of the repo)
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware((auth, req) => {
-  // Only add basic security headers that work in Edge runtime
-  const response = new Response()
-  
-  // Edge-safe security headers
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'origin-when-cross-origin')
-  
-  return response
-})
+// List the routes that must be signed-in
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/create(.*)",
+  "/u(.*)",
+  "/api/private/(.*)", // move any private APIs under /api/private/ if needed
+]);
 
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
+});
+
+// IMPORTANT: valid Next.js matcher that skips static assets/internal routes
 export const config = {
   matcher: [
-    // Run middleware on all routes except Next.js internals and static files
-    "/((?!api/webhooks|_next/static|_next/image|favicon.ico).*)",
+    // run on everything except _next, static files, and favicons/sitemaps/robots
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 };
