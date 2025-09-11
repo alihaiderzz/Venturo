@@ -1,5 +1,6 @@
 // middleware.ts (Root of the repo)
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 // List the routes that must be signed-in
 const isProtectedRoute = createRouteMatcher([
@@ -10,8 +11,29 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    await auth.protect();
+  try {
+    // Check if Clerk is properly configured
+    if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
+      console.error("Clerk environment variables are missing");
+      // Allow public routes to work even without Clerk
+      if (!isProtectedRoute(req)) {
+        return NextResponse.next();
+      }
+      // For protected routes, redirect to a safe page
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    if (isProtectedRoute(req)) {
+      await auth.protect();
+    }
+  } catch (error) {
+    console.error("Middleware error:", error);
+    // For protected routes, redirect to home
+    if (isProtectedRoute(req)) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    // For public routes, continue
+    return NextResponse.next();
   }
 });
 

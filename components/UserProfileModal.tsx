@@ -238,7 +238,13 @@ export function UserProfileModal({ children, onProfileUpdate }: { children: Reac
           description: "Profile updated successfully!",
         })
       } else {
-        const errorData = await response.json()
+        let errorData = {}
+        try {
+          errorData = await response.json()
+        } catch (e) {
+          console.error('Failed to parse error response:', e)
+          errorData = { error: 'Unknown error occurred' }
+        }
         console.error('Profile update failed:', errorData)
         toast({
           title: "Failed to update profile",

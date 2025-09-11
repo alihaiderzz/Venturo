@@ -137,6 +137,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Check if Clerk is properly configured
+  const isClerkConfigured = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY;
+  
+  if (!isClerkConfigured) {
+    console.warn("Clerk not configured, running without authentication");
+    return (
+      <html lang="en" className={`${inter.variable} ${manrope.variable} antialiased`}>
+        <body className="font-sans">
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </body>
+      </html>
+    );
+  }
+
   return (
     <ClerkProvider appearance={clerkAppearance}>
       <html lang="en" className={`${inter.variable} ${manrope.variable} antialiased`}>
